@@ -1,26 +1,22 @@
 import concurrent.futures
 import random
 import keyboard
+import os
 import pydirectinput
 import pyautogui
 import TwitchPlays_Connection
+from dotenv import load_dotenv
 from TwitchPlays_KeyCodes import *
 
 ##################### GAME VARIABLES #####################
 
-# Replace this with your Twitch username. Must be all lowercase.
-TWITCH_CHANNEL = 'dougdougw' 
+# Load environment variables from .env file
+load_dotenv()
 
-# If streaming on Youtube, set this to False
-STREAMING_ON_TWITCH = True
-
-# If you're streaming on Youtube, replace this with your Youtube's Channel ID
-# Find this by clicking your Youtube profile pic -> Settings -> Advanced Settings
-YOUTUBE_CHANNEL_ID = "YOUTUBE_CHANNEL_ID_HERE" 
-
-# If you're using an Unlisted stream to test on Youtube, replace "None" below with your stream's URL in quotes.
-# Otherwise you can leave this as "None"
-YOUTUBE_STREAM_URL = None
+TWITCH_CHANNEL = os.environ.get("TWITCH_CHANNEL")
+STREAMING_ON_TWITCH = os.environ.get("STREAMING_ON_TWITCH")
+YOUTUBE_CHANNEL_ID = os.environ.get("YOUTUBE_CHANNEL_ID")
+YOUTUBE_STREAM_URL = os.environ.get("YOUTUBE_STREAM_URL")
 
 ##################### MESSAGE QUEUE VARIABLES #####################
 
