@@ -4,7 +4,8 @@ import keyboard
 import os
 import pydirectinput
 import pyautogui
-import TwitchPlays_Connection
+import twitch_connection;
+import youtube_connection;
 from dotenv import load_dotenv
 from TwitchPlays_KeyCodes import *
 
@@ -49,10 +50,10 @@ while countdown > 0:
     time.sleep(1)
 
 if STREAMING_ON_TWITCH:
-    t = TwitchPlays_Connection.Twitch()
+    t = twitch_connection.Twitch()
     t.twitch_connect(TWITCH_CHANNEL)
 else:
-    t = TwitchPlays_Connection.YouTube()
+    t = youtube_connection.YouTube()
     t.youtube_connect(YOUTUBE_CHANNEL_ID, YOUTUBE_STREAM_URL)
 
 def handle_message(message):
