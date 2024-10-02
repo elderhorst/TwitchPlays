@@ -1,55 +1,63 @@
 import discord
+import threading
 import time
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class Discord:
-	TOKEN = os.getenv("DISCORD_TOKEN")
-	GUILD = os.getenv("DISCORD_GUILD")
-	CHANNEL = os.getenv("DISCORD_CHANNEL")
+	client = None
 
-	intents = discord.Intents.default()
-	intents.message_content = True
-	
-	client = discord.Client(intents=intents)
-	guild = None
-
-	messages = []
-	
-	@client.event
-	async def on_ready():
-		print(f"{Discord.client.user} has connected to discord!")
+	def discord_connect(self, token, guild, channel):
+		intents = discord.Intents.default()
+		intents.message_content = True
 		
-		Discord.guild = discord.utils.find(lambda g: g.name == Discord.GUILD, Discord.client.guilds)
+		self.client = ChatRecordingClient(intents, guild, channel)
 		
-	@client.event
-	async def on_message(message):
-		if message.author == Discord.client.user:
-			return
+		bot = threading.Thread(target=self.run_bot, args=(token,), daemon=True)
+		bot.start()
 		
-		if message.content != None and message.content != "" and message.channel.name == Discord.CHANNEL:
-			msg = {
-				"username": message.author,
-				"message": message.content,
-			}
-			
-			Discord.messages.append(msg)
-
-	def twitch_connect(self):
-		self.client.run(self.TOKEN)
-		
-		while(self.guild == None):
-			Time.delay(1)
+	def run_bot(self, token):
+		self.client.run(token)
 
 	def reconnect(self, delay):
 		time.sleep(delay)
-		self.twitch_connect(self.channel)
+		self.discord_connect(self.channel)
 
 	def twitch_receive_messages(self):
-		response = messages
-		messages = []
+		# This should be using locks
+		response = self.client.messages
+		self.client.messages = []
 		
 		return response
 
+class ChatRecordingClient(discord.Client):
+	guild_name = ""
+	channel_name = ""
+	
+	guild = None
+	
+	messages = []
+	
+	def __init__(self, intents, guild_name, channel_name):
+		self.guild_name = guild_name
+		self.channel_name = channel_name
+		
+		discord.Client.__init__(self, intents=intents)
+	
+	async def on_ready(self):
+		print(f"{self.user} has connected to discord!")
+		
+		self.guild = discord.utils.find(lambda g: g.name == self.guild_name, self.guilds)
+		
+	async def on_message(self, message):
+		if message.author == self.user:
+			return
+		
+		if message.content != None and message.content != "" and message.channel.name == self.channel_name:
+			msg = {
+				"username": message.author.name,
+				"message": message.content,
+			}
+			
+			self.messages.append(msg)
