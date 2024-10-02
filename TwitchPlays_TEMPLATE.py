@@ -1,4 +1,5 @@
 import concurrent.futures
+import discord_connection
 import random
 import keyboard
 import os
@@ -14,10 +15,18 @@ from TwitchPlays_KeyCodes import *
 # Load environment variables from .env file
 load_dotenv()
 
+LISTEN_ON_TWITCH = os.environ.get("LISTEN_ON_TWITCH")
+LISTEN_ON_YOUTUBE = os.environ.get("LISTEN_ON_YOUTUBE")
+LISTEN_ON_DISCORD = os.environ.get("LISTEN_ON_DISCORD")
+
 TWITCH_CHANNEL = os.environ.get("TWITCH_CHANNEL")
-STREAMING_ON_TWITCH = os.environ.get("STREAMING_ON_TWITCH")
+
 YOUTUBE_CHANNEL_ID = os.environ.get("YOUTUBE_CHANNEL_ID")
 YOUTUBE_STREAM_URL = os.environ.get("YOUTUBE_STREAM_URL")
+
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_GUILD = os.getenv("DISCORD_GUILD")
+DISCORD_CHANNEL = os.getenv("DISCORD_CHANNEL")
 
 ##################### MESSAGE QUEUE VARIABLES #####################
 
@@ -49,12 +58,15 @@ while countdown > 0:
     countdown -= 1
     time.sleep(1)
 
-if STREAMING_ON_TWITCH:
-    t = twitch_connection.Twitch()
-    t.twitch_connect(TWITCH_CHANNEL)
-else:
-    t = youtube_connection.YouTube()
-    t.youtube_connect(YOUTUBE_CHANNEL_ID, YOUTUBE_STREAM_URL)
+if LISTEN_ON_TWITCH == "True":
+    connection = twitch_connection.Twitch()
+    connection.twitch_connect(TWITCH_CHANNEL)
+elif LISTEN_ON_YOUTUBE == "True":
+    connection = youtube_connection.YouTube()
+    connection.youtube_connect(YOUTUBE_CHANNEL_ID, YOUTUBE_STREAM_URL)
+elif LISTEN_ON_DISCORD == "True":
+    connection = discord_connection.Discord()
+    connection.discord_connect(DISCORD_TOKEN, DISCORD_GUILD, DISCORD_CHANNEL)
 
 def handle_message(message):
     try:
@@ -128,7 +140,7 @@ while True:
     active_tasks = [t for t in active_tasks if not t.done()]
 
     #Check for new messages
-    new_messages = t.twitch_receive_messages();
+    new_messages = connection.twitch_receive_messages()
     if new_messages:
         message_queue += new_messages; # New messages are added to the back of the queue
         message_queue = message_queue[-MAX_QUEUE_LENGTH:] # Shorten the queue to only the most recent X messages
