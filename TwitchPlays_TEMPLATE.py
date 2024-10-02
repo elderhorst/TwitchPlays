@@ -44,6 +44,7 @@ MAX_QUEUE_LENGTH = 20
 MAX_WORKERS = 100 # Maximum number of threads you can process at a time 
 
 last_time = time.time()
+connections = []
 message_queue = []
 thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
 active_tasks = []
@@ -59,14 +60,19 @@ while countdown > 0:
     time.sleep(1)
 
 if LISTEN_ON_TWITCH == "True":
-    connection = twitch_connection.Twitch()
-    connection.twitch_connect(TWITCH_CHANNEL)
-elif LISTEN_ON_YOUTUBE == "True":
-    connection = youtube_connection.YouTube()
-    connection.youtube_connect(YOUTUBE_CHANNEL_ID, YOUTUBE_STREAM_URL)
-elif LISTEN_ON_DISCORD == "True":
-    connection = discord_connection.Discord()
-    connection.discord_connect(DISCORD_TOKEN, DISCORD_GUILD, DISCORD_CHANNEL)
+    twitch = twitch_connection.Twitch()
+    twitch.twitch_connect(TWITCH_CHANNEL)
+    connections.append(twitch)
+
+if LISTEN_ON_YOUTUBE == "True":
+    youtube = youtube_connection.YouTube()
+    youtube.youtube_connect(YOUTUBE_CHANNEL_ID, YOUTUBE_STREAM_URL)
+    connections.append(youtube)
+
+if LISTEN_ON_DISCORD == "True":
+    discord = discord_connection.Discord()
+    discord.discord_connect(DISCORD_TOKEN, DISCORD_GUILD, DISCORD_CHANNEL)
+    connections.append(discord)
 
 def handle_message(message):
     try:
@@ -139,8 +145,12 @@ while True:
 
     active_tasks = [t for t in active_tasks if not t.done()]
 
-    #Check for new messages
-    new_messages = connection.twitch_receive_messages()
+    # Check for new messages in all active connections
+    new_messages = []
+    
+    for connection in connections:
+        new_messages.extend(connection.twitch_receive_messages())
+        
     if new_messages:
         message_queue += new_messages; # New messages are added to the back of the queue
         message_queue = message_queue[-MAX_QUEUE_LENGTH:] # Shorten the queue to only the most recent X messages

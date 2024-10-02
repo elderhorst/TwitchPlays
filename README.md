@@ -17,7 +17,7 @@ python -m pip install python-dotenv
 In the same directory as the file you are running create a file names `.env` (with no file extension) using the following template:
 
 ```
-# Set to True which source you want to use for the input.
+# Set to True which sources you want to listen to for the input.
 LISTEN_ON_TWITCH = True
 LISTEN_ON_YOUTUBE = False
 LISTEN_ON_DISCORD = False
