@@ -1,6 +1,6 @@
-import chat_listener
 import pydirectinput
-from TwitchPlays_KeyCodes import *
+from chat_plays.chat_listener import ChatListener
+from chat_plays.TwitchPlays_KeyCodes import *
 
 ##################### MESSAGE QUEUE VARIABLES #####################
 
@@ -87,5 +87,5 @@ def handle_message(message):
         print("Encountered exception: " + str(e))
 
 # If user presses Shift+Backspace, automatically end the program
-chat_listener = chat_listener.ChatListener(MESSAGE_RATE, MAX_QUEUE_LENGTH, MAX_WORKERS)
+chat_listener = ChatListener(MESSAGE_RATE, MAX_QUEUE_LENGTH, MAX_WORKERS)
 chat_listener.run(handle_message)

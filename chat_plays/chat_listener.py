@@ -1,12 +1,12 @@
 import concurrent.futures
-import discord_connection
 import keyboard
 import os
 import pyautogui
-import twitch_connection;
-import youtube_connection;
+from chat_plays import discord_connection
+from chat_plays import twitch_connection
+from chat_plays import youtube_connection
+from chat_plays.TwitchPlays_KeyCodes import *
 from dotenv import load_dotenv
-from TwitchPlays_KeyCodes import *
 
 class ChatListener:
 	last_time = time.time()
